@@ -45,8 +45,24 @@ def crear_libro():
 
 @app.put("/libros/<int:libro_id>")
 def modificar_libro(libro_id):
-    # TODO: comprobar existencia, leer cambios y actualizar.
-    return jsonify({"mensaje": "Endpoint pendiente"}), 501
+    libro_existente = obtener_libro_por_id(libro_id)
+
+    if libro_existente is None:
+        return jsonify({"error": "Libro no encontrado"}), 404
+
+    cambios = request.get_json(silent=True)
+
+    if not isinstance(cambios, dict) or not cambios:
+        return jsonify({"error": "Debe enviar los cambios en formato JSON"}), 400
+
+    # El id llega en la URL; no debe modificarse desde el cuerpo de la petición.
+    cambios.pop("id", None)
+
+    if not cambios:
+        return jsonify({"error": "No se enviaron campos para actualizar"}), 400
+
+    resultado = actualizar_libro(libro_id, cambios)
+    return jsonify(resultado), 200
 
 @app.delete("/libros/<int:id>")
 def eliminar(id):

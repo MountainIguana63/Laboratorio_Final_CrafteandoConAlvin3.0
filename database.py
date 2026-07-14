@@ -11,17 +11,40 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def obtener_libros():
     """Devuelve todos los libros ordenados por id."""
-    respuesta = supabase.table("libros").select("*").order("id").execute()
+    respuesta = (
+        supabase
+        .table("libros")
+        .select("*")
+        .order("id")
+        .execute()
+    )
     return respuesta.data
 
 def obtener_libro_por_id(libro_id: int):
     """TODO 1: consultar un libro por su id y devolverlo o None."""
-    # Pista: utilice .eq("id", libro_id) y revise respuesta.data.
+    respuesta = (
+        supabase
+        .table("libros")
+        .select("*")
+        .eq("id", libro_id)
+        .execute()
+    )
+
+    if respuesta.data:
+        return respuesta.data[0]
+
+    return None
     raise NotImplementedError("Endpoint pendiente: GET /libros/<id>")
 
 def insertar_libro(datos: dict):
     """TODO 2: insertar un libro y devolver el registro creado."""
-    # Pista: table(...).insert(datos).execute()
+    respuesta = (
+        supabase
+        .table("libros")
+        .insert(datos)
+        .execute()
+    )
+    return respuesta.data
     raise NotImplementedError("Endpoint pendiente: POST /libros")
 
 def actualizar_libro(libro_id: int, cambios: dict):

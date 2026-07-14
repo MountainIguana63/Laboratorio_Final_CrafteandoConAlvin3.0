@@ -11,19 +11,37 @@ app = Flask(__name__)
 def inicio():
     return jsonify({"mensaje": "API de libros en funcionamiento"}), 200
 
+
 @app.get("/libros")
 def listar_libros():
     return jsonify(obtener_libros()), 200
 
+
 @app.get("/libros/<int:libro_id>")
 def consultar_libro(libro_id):
-    # TODO: llamar a obtener_libro_por_id y responder 404 cuando no exista.
-    return jsonify({"mensaje": "Endpoint pendiente"}), 501
+    libro = obtener_libro_por_id(libro_id)
+
+    if libro is None:
+        return jsonify({"error": "Libro no encontrado"}), 404
+
+    return jsonify(libro), 200
 
 @app.post("/libros")
 def crear_libro():
-    # TODO: leer request.get_json(), validar campos obligatorios e insertar.
-    return jsonify({"mensaje": "Endpoint pendiente"}), 501
+    libro = request.get_json(silent=True)
+
+    if not isinstance(libro, dict):
+        return jsonify({"error": "Debe enviar los datos del libro en formato JSON"}), 400
+
+    campos_faltantes = sorted(CAMPOS_OBLIGATORIOS - libro.keys())
+    if campos_faltantes:
+        return jsonify({
+            "error": "Faltan campos obligatorios",
+            "campos_faltantes": campos_faltantes,
+        }), 400
+
+    resultado = insertar_libro(libro)
+    return jsonify(resultado), 201
 
 @app.put("/libros/<int:libro_id>")
 def modificar_libro(libro_id):
